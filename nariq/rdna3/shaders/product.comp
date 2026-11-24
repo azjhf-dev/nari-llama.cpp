@@ -1,0 +1,44 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 RDNA3 fork contributors
+// Format and tile order: Nari Labs NariQ, exllamav3 (see nariq/NOTICE).
+// Correctness-first prototype, NOT connected to the ggml Vulkan backend yet.
+#version 450
+layout(local_size_x = 64) in;
+layout(set=0,binding=0,std430) readonly buffer Codes { uint codes[]; };
+layout(set=0,binding=1,std430) readonly buffer Scales { uint scales[]; };
+layout(set=0,binding=2,std430) readonly buffer Inputs { float inputs[]; };
+layout(set=0,binding=3,std430) writeonly buffer Outputs { float outputs[]; };
+layout(push_constant) uniform Params { uint K; uint N; uint bits; uint batch; } p;
+
+int decode_value(uint row, uint col) {
+    uint r = row % 16, c = col % 16;
+    uint index = 8*(4*(r%8) + (c%8)/2) + 4*(r/8) + 2*(c/8) + c%2;
+    uint count = 8*p.bits;
+    uint start = ((index + 1)*p.bits + 256*p.bits - 16) % (256*p.bits);
+    uint word = start/32, offset = start%32;
+    uint base = ((row/16)*(p.K/16) + col/16)*count;
+    uint hi = codes[base + word], lo = codes[base + (word+1)%count];
+    // Never shift a 32-bit value by 32 or more. Circular tail wraps per tile.
+    uint state;
+    if (offset <= 16) state = hi >> (16-offset);
+    else state = (hi << (offset-16)) | (lo >> (48-offset));
+    uint h = (state & 65535u)*0x83DCD12Du;
+    return int(((h>>2)&63u) + ((h>>10)&63u) + ((h>>18)&63u) + ((h>>26)&63u))-126;
+}
+void main() {
+    uint row = gl_GlobalInvocationID.x, token = gl_GlobalInvocationID.y;
+    if (row >= p.N || token >= p.batch) return;
+#ifdef DECODE_ONLY
+    for (uint col=0; col<p.K; ++col)
+        outputs[row*p.K+col] = float(decode_value(row,col));
+#else
+    precise float sum = 0.0;
+    for (uint col=0; col<p.K; ++col) {
+        vec2 s = unpackHalf2x16(scales[(col/16)/2]);
+        float scale = ((col/16)%2 == 0) ? s.x : s.y;
+        precise float w = float(decode_value(row,col))*scale;
+        sum += w*inputs[token*p.K+col];
+    }
+    outputs[token*p.N+row] = sum;
+#endif
+}

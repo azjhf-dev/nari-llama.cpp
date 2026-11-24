@@ -1,3 +1,10 @@
+# RDNA3 port branch
+
+Work in progress. NariQ does **not** run on AMD through this branch yet.
+See [RDNA3 status and test instructions](nariq/rdna3/README.md) for exactly what
+is implemented and tested. The upstream documentation below describes Nari's
+CUDA/CPU/Metal support, not a completed AMD port.
+
 # nari-llama.cpp
 
 The Nari Labs fork of [llama.cpp](https://github.com/ggml-org/llama.cpp) that runs the NariQ trellis-coded

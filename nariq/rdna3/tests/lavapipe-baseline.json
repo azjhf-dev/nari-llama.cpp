@@ -1,0 +1,97 @@
+{
+  "device": "llvmpipe (LLVM 15.0.7, 256 bits)",
+  "cases": [
+    {
+      "bits": 1,
+      "pattern": "random",
+      "max_abs_error": 8.478385211674322e-06
+    },
+    {
+      "bits": 1,
+      "pattern": "zero",
+      "max_abs_error": 9.924532150762388e-06
+    },
+    {
+      "bits": 1,
+      "pattern": "ones",
+      "max_abs_error": 8.53000528877601e-07
+    },
+    {
+      "bits": 2,
+      "pattern": "random",
+      "max_abs_error": 6.198149549163645e-06
+    },
+    {
+      "bits": 2,
+      "pattern": "zero",
+      "max_abs_error": 3.077354236324936e-06
+    },
+    {
+      "bits": 2,
+      "pattern": "ones",
+      "max_abs_error": 2.818200073306798e-07
+    },
+    {
+      "bits": 3,
+      "pattern": "random",
+      "max_abs_error": 1.0912472134805284e-05
+    },
+    {
+      "bits": 3,
+      "pattern": "zero",
+      "max_abs_error": 2.6698881129050278e-05
+    },
+    {
+      "bits": 3,
+      "pattern": "ones",
+      "max_abs_error": 2.064489308395423e-07
+    },
+    {
+      "bits": 4,
+      "pattern": "random",
+      "max_abs_error": 1.0473062161509006e-05
+    },
+    {
+      "bits": 4,
+      "pattern": "zero",
+      "max_abs_error": 8.557174169254722e-06
+    },
+    {
+      "bits": 4,
+      "pattern": "ones",
+      "max_abs_error": 9.606950470697484e-07
+    },
+    {
+      "bits": 5,
+      "pattern": "random",
+      "max_abs_error": 6.388486326613929e-06
+    },
+    {
+      "bits": 5,
+      "pattern": "zero",
+      "max_abs_error": 1.5593019156767696e-05
+    },
+    {
+      "bits": 5,
+      "pattern": "ones",
+      "max_abs_error": 1.133571231548558e-06
+    },
+    {
+      "bits": 6,
+      "pattern": "random",
+      "max_abs_error": 1.1104708164566546e-05
+    },
+    {
+      "bits": 6,
+      "pattern": "zero",
+      "max_abs_error": 1.904705816002661e-05
+    },
+    {
+      "bits": 6,
+      "pattern": "ones",
+      "max_abs_error": 1.55695579451276e-06
+    }
+  ],
+  "passed": true,
+  "scope": "isolated decode and unrotated product only"
+}
