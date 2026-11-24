@@ -102,6 +102,240 @@
       "max_abs_error": 1.55695579451276e-06
     }
   ],
+  "side_cases": [
+    {
+      "n": 64,
+      "kind": 0,
+      "block": 0,
+      "shards": 1,
+      "parts": [],
+      "inverse": 0,
+      "max_abs_error": 0.0
+    },
+    {
+      "n": 64,
+      "kind": 0,
+      "block": 0,
+      "shards": 1,
+      "parts": [],
+      "inverse": 1,
+      "max_abs_error": 0.0
+    },
+    {
+      "n": 128,
+      "kind": 1,
+      "block": 16,
+      "shards": 1,
+      "parts": [],
+      "inverse": 0,
+      "max_abs_error": 1.6205012798309326e-07
+    },
+    {
+      "n": 128,
+      "kind": 1,
+      "block": 16,
+      "shards": 1,
+      "parts": [],
+      "inverse": 1,
+      "max_abs_error": 1.601874828338623e-07
+    },
+    {
+      "n": 128,
+      "kind": 1,
+      "block": 64,
+      "shards": 1,
+      "parts": [],
+      "inverse": 0,
+      "max_abs_error": 3.666500560939312e-07
+    },
+    {
+      "n": 128,
+      "kind": 1,
+      "block": 64,
+      "shards": 1,
+      "parts": [],
+      "inverse": 1,
+      "max_abs_error": 6.148293323349208e-07
+    },
+    {
+      "n": 64,
+      "kind": 2,
+      "block": 0,
+      "shards": 1,
+      "parts": [],
+      "inverse": 0,
+      "max_abs_error": 3.715176717378199e-07
+    },
+    {
+      "n": 64,
+      "kind": 2,
+      "block": 0,
+      "shards": 1,
+      "parts": [],
+      "inverse": 1,
+      "max_abs_error": 2.973247319459915e-07
+    },
+    {
+      "n": 192,
+      "kind": 2,
+      "block": 0,
+      "shards": 1,
+      "parts": [],
+      "inverse": 0,
+      "max_abs_error": 2.711125031140682e-07
+    },
+    {
+      "n": 192,
+      "kind": 2,
+      "block": 0,
+      "shards": 1,
+      "parts": [],
+      "inverse": 1,
+      "max_abs_error": 2.5128295688681135e-07
+    },
+    {
+      "n": 320,
+      "kind": 2,
+      "block": 0,
+      "shards": 1,
+      "parts": [],
+      "inverse": 0,
+      "max_abs_error": 2.9846305571457066e-07
+    },
+    {
+      "n": 320,
+      "kind": 2,
+      "block": 0,
+      "shards": 1,
+      "parts": [],
+      "inverse": 1,
+      "max_abs_error": 3.27370133446081e-07
+    },
+    {
+      "n": 1088,
+      "kind": 2,
+      "block": 0,
+      "shards": 1,
+      "parts": [],
+      "inverse": 0,
+      "max_abs_error": 5.284062687405111e-07
+    },
+    {
+      "n": 1088,
+      "kind": 2,
+      "block": 0,
+      "shards": 1,
+      "parts": [],
+      "inverse": 1,
+      "max_abs_error": 5.275069421273315e-07
+    },
+    {
+      "n": 384,
+      "kind": 2,
+      "block": 0,
+      "shards": 2,
+      "parts": [
+        128,
+        256
+      ],
+      "inverse": 0,
+      "max_abs_error": 2.5563449379539804e-07
+    },
+    {
+      "n": 384,
+      "kind": 2,
+      "block": 0,
+      "shards": 2,
+      "parts": [
+        128,
+        256
+      ],
+      "inverse": 1,
+      "max_abs_error": 2.6849708034681896e-07
+    },
+    {
+      "n": 640,
+      "kind": 2,
+      "block": 0,
+      "shards": 2,
+      "parts": [
+        256,
+        384
+      ],
+      "inverse": 0,
+      "max_abs_error": 3.478318293392846e-07
+    },
+    {
+      "n": 640,
+      "kind": 2,
+      "block": 0,
+      "shards": 2,
+      "parts": [
+        256,
+        384
+      ],
+      "inverse": 1,
+      "max_abs_error": 2.8173475774551093e-07
+    },
+    {
+      "gather_mode": 0,
+      "n": 67,
+      "exact": true
+    },
+    {
+      "gather_mode": 1,
+      "n": 67,
+      "exact": true
+    }
+  ],
+  "composed": {
+    "status": "passed",
+    "cases": [
+      {
+        "bits": 1,
+        "K": 192,
+        "N": 320,
+        "batch": 3,
+        "max_abs_error": 4.449400856287866e-05
+      },
+      {
+        "bits": 2,
+        "K": 192,
+        "N": 320,
+        "batch": 3,
+        "max_abs_error": 9.73854384653805e-05
+      },
+      {
+        "bits": 3,
+        "K": 192,
+        "N": 320,
+        "batch": 3,
+        "max_abs_error": 6.443255111321378e-05
+      },
+      {
+        "bits": 4,
+        "K": 192,
+        "N": 320,
+        "batch": 3,
+        "max_abs_error": 7.964136574400982e-05
+      },
+      {
+        "bits": 5,
+        "K": 192,
+        "N": 320,
+        "batch": 3,
+        "max_abs_error": 7.090991728375684e-05
+      },
+      {
+        "bits": 6,
+        "K": 192,
+        "N": 320,
+        "batch": 3,
+        "max_abs_error": 6.0385349144098655e-05
+      }
+    ],
+    "oracle": "native CPU ggml_trellis_dequantize plus FP64 product"
+  },
   "passed": true,
-  "scope": "isolated decode and unrotated product only"
+  "scope": "isolated decode/product/transforms/gathers, not ggml or full-model"
 }

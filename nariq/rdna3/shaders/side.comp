@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: MIT
+// Correctness prototype for NariQ transforms and gathers. Not a tuned kernel.
+#version 450
+layout(local_size_x=64) in;
+layout(set=0,binding=0,std430) readonly buffer Config { uint cfg[]; };
+layout(set=0,binding=1,std430) readonly buffer Scales { float scales[]; };
+layout(set=0,binding=2,std430) readonly buffer Inputs { float inputs[]; };
+layout(set=0,binding=3,std430) writeonly buffer Outputs { float outputs[]; };
+layout(push_constant) uniform Params { uint n; uint unused; uint mode; uint batch; } p;
+
+uint stored(uint local_index, uint shard, uint shards, uint nparts) {
+    if (nparts==0) return shard*(p.n/shards)+local_index;
+    uint base=0;
+    for (uint part=0; part<nparts; ++part) {
+        uint size=cfg[5+part], sub=size/shards;
+        if (local_index<sub) return base+shard*sub+local_index;
+        local_index-=sub;
+        base+=size;
+    }
+    return 0; // Host must validate the descriptor before dispatch.
+}
+int paley(uint r, uint c, uint m) {
+    if (r==c || r==0) return 1;
+    if (c==0) return -1;
+    uint q=m-1, d=(c+q-r)%q;
+    for (uint i=1; i<q; ++i) if ((i*i)%q==d) return 1;
+    return -1;
+}
+void main() {
+    uint i=gl_GlobalInvocationID.x, token=gl_GlobalInvocationID.y;
+    if (i>=p.n || token>=p.batch) return;
+#ifdef GATHER
+    uint source=cfg[i];
+    outputs[token*p.n+i]=inputs[token*p.n+source]*scales[p.mode==0 ? i : source];
+#else
+    // cfg = kind, block, shards, inverse, nparts, parts...
+    uint kind=cfg[0], block=cfg[1], shards=cfg[2], inverse=cfg[3], nparts=cfg[4];
+    if (kind==0) { outputs[token*p.n+i]=inputs[token*p.n+i]; return; }
+    uint len=kind==1 ? block : p.n/shards;
+    uint shard=i/len, local_index=i%len, m=1;
+    if (kind==2 && (len&(len-1))!=0) {
+        if (len%12==0 && ((len/12)&(len/12-1))==0) m=12;
+        else if (len%20==0 && ((len/20)&(len/20-1))==0) m=20;
+        else m=68;
+    }
+    uint run=len/m, row=local_index/run, a=local_index%run;
+    precise float total=0.0;
+    for (uint b=0; b<m; ++b) {
+        precise float inner=0.0;
+        for (uint j=0; j<run; ++j) {
+            uint input_index=kind==1 ? shard*len+b*run+j : stored(b*run+j,shard,shards,nparts);
+            float x=inputs[token*p.n+input_index];
+            inner += (bitCount(a&j)%2==0) ? x : -x;
+        }
+        int sign=m==1 ? 1 : (inverse!=0 ? paley(b,row,m) : paley(row,b,m));
+        total += sign>0 ? inner : -inner;
+    }
+    uint output_index=kind==1 ? i : stored(local_index,shard,shards,nparts);
+    outputs[token*p.n+output_index]=total*inversesqrt(float(len));
+#endif
+}

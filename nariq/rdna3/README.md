@@ -34,13 +34,38 @@ or integration limits are material on hardware, not a promised second backend.
   `rtol=3e-5, atol=2e-4` against FP64 accumulation. Recorded results are in
   `tests/lavapipe-baseline.json`.
 
+### Second checkpoint, Nov 24
+
+Added portable input/output gather-scale and normalized Hadamard shader
+prototypes. Software Vulkan checks now also cover identity, block Sylvester,
+whole-slice Paley factors 12/20/68, forward/inverse, fused output parts,
+multiple shards and non-workgroup-aligned gather tails: 20 additional cases.
+Six composed pipelines (TRL1-6) run input gather/pre-scale, forward transform,
+compressed product, inverse output transform and output scale/gather. They
+match the native CPU dense decoder plus FP64 matmul at `rtol=2e-4, atol=2e-4`.
+The composed cases include distinct 192/320 dimensions, non-power-of-two
+transforms, output parts and input/output permutations.
+
+These are simple direct-sum transforms for a correctness baseline, not tuned
+butterfly implementations. They have quadratic work and must not be mistaken
+for production-ready kernels. None is wired into the ggml Vulkan backend.
+The independent transform oracle is a dense FP64 Kronecker matrix; the
+composed oracle is the existing native CPU `ggml_trellis_dequantize`.
+
+The one-command check always runs isolated primitives. To enable the extra
+native composed check, set `NARIQ_TEST_LIBRARY` to your built
+`libggml-base.so` (or matching platform library). A missing native library is
+reported as a skipped composed check, not a native parity pass. The checked-in
+software baseline includes all 44 cases (18 decode/product, 20 side/gather,
+6 composed), with native comparison enabled.
+
 ## What is NOT verified or implemented
 
 - No AMD GPU, NVIDIA GPU or real RDNA3 driver run. Software Vulkan is not a GPU
   benchmark and establishes neither RDNA3 compatibility nor useful speed.
 - The new shader is **not registered with ggml-vulkan**. No AMD full-model run.
-- Input/output transforms, permutations, ggml scheduling, scratch lifetimes and
-  backend allocation plumbing are still to be ported.
+- ggml scheduling, scratch lifetimes and backend allocation plumbing remain.
+  Isolated transforms/gathers work only through the prototype test harness.
 - No model weights downloaded or evaluated yet. No full-model KL, perplexity,
   generation quality or speed result. CPU synthetic checks do not establish
   correctness against the released model.

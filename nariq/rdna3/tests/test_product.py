@@ -125,6 +125,8 @@ def main():
             wanted=x.astype(np.float64)@(expected*np.repeat(scales.astype(np.float32),16)).astype(np.float64).T
             np.testing.assert_allclose(actual.reshape(batch,N),wanted,rtol=3e-5,atol=2e-4)
             results.append({'bits':bits,'pattern':pattern,'max_abs_error':float(np.max(np.abs(actual.reshape(batch,N)-wanted)))})
-    print(json.dumps({'environment':name,'cases':results,'passed':True,'scope':'isolated decode and unrotated product only'},indent=2))
+    from test_side import run_sides, run_composed
+    sides=run_sides(args.shader_dir)
+    print(json.dumps({'environment':name,'cases':results,'side_cases':sides,'composed':run_composed(args.shader_dir),'passed':True,'scope':'isolated decode/product/transforms/gathers, not ggml or full-model'},indent=2))
 
 if __name__=='__main__': main()
