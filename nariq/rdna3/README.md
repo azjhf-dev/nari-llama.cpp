@@ -46,6 +46,12 @@ or integration limits are material on hardware, not a promised second backend.
   correctness against the released model.
 - Prototype product is deliberately scalar and slow; no performance claim.
 
+## RX 7900 XTX test box
+
+Ash confirmed the target is a 7900 XTX on Nov 24. OS and driver are not yet
+confirmed. Current quick-start below targets Linux; do not assume a Windows
+shell has the same dependencies or commands. No full-model memory fit is claimed.
+
 ## One-command isolated test on the RDNA3 box
 
 Install Vulkan drivers/loader, `glslangValidator`, `spirv-val`, Python 3, and the
@@ -53,13 +59,16 @@ Python packages `numpy` and `vulkan` in your own environment. On Ubuntu the
 shader tools are provided by `glslang-tools` and `spirv-tools`.
 
 ```sh
-bash nariq/rdna3/check.sh
+NARIQ_VULKAN_DEVICE="7900" bash nariq/rdna3/check.sh
 ```
 
 Return `build-rdna3-shaders/results.json` and the card, OS and driver versions.
-The runner currently chooses the first visible Vulkan device; set
+The example requires a device name containing 7900 and fails if none matches.
+Without `NARIQ_VULKAN_DEVICE`, the runner chooses the first visible device. Set
 `VK_ICD_FILENAMES` to the desired AMD driver when multiple ICDs are present.
-Check the reported device name before interpreting a pass. No weights, network,
+The JSON captures OS, device, vendor/device IDs, raw Vulkan API/driver versions
+and ICD override. Also include `vulkaninfo --summary` output if available, since
+vendor driver version encodings differ. Check the device name before interpreting a pass. No weights, network,
 root access, server exposure or paid service is needed by this script.
 
 ## Four-week plan, target 2026-12-24

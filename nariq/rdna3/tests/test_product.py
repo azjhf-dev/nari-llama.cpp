@@ -5,6 +5,8 @@ Software Vulkan is useful for correctness only. This is not a full-model test.
 import argparse
 import ctypes
 import json
+import os
+import platform
 from pathlib import Path
 import numpy as np
 import vulkan as v
@@ -16,7 +18,11 @@ def execute(shader, chunks, out_bytes, params):
     devices = v.vkEnumeratePhysicalDevices(instance)
     if not devices:
         raise RuntimeError('No Vulkan devices')
-    physical = devices[0]
+    wanted = os.environ.get('NARIQ_VULKAN_DEVICE', '').lower()
+    matches = [d for d in devices if wanted in v.vkGetPhysicalDeviceProperties(d).deviceName.lower()]
+    if not matches:
+        raise RuntimeError('Requested device not found; visible devices: ' + ', '.join(v.vkGetPhysicalDeviceProperties(d).deviceName for d in devices))
+    physical = matches[0]
     family = next(i for i, x in enumerate(v.vkGetPhysicalDeviceQueueFamilyProperties(physical)) if x.queueFlags & v.VK_QUEUE_COMPUTE_BIT)
     device = v.vkCreateDevice(physical, v.VkDeviceCreateInfo(pQueueCreateInfos=[v.VkDeviceQueueCreateInfo(queueFamilyIndex=family, queueCount=1, pQueuePriorities=[1.0])]), None)
     queue = v.vkGetDeviceQueue(device, family, 0)
@@ -58,7 +64,13 @@ def execute(shader, chunks, out_bytes, params):
     ptr = v.vkMapMemory(device, allocations[-1][1], 0, out_bytes, 0)
     result = bytes(ptr)
     v.vkUnmapMemory(device, allocations[-1][1])
-    name = v.vkGetPhysicalDeviceProperties(physical).deviceName
+    properties = v.vkGetPhysicalDeviceProperties(physical)
+    name = properties.deviceName
+    details = {'device_name': name, 'vendor_id': properties.vendorID,
+               'device_id': properties.deviceID, 'driver_version_raw': properties.driverVersion,
+               'vulkan_api_version_raw': properties.apiVersion,
+               'os': platform.platform(), 'python': platform.python_version(),
+               'device_filter': wanted, 'icd_override': os.environ.get('VK_ICD_FILENAMES', '')}
     v.vkDestroyCommandPool(device, command_pool, None)
     v.vkDestroyDescriptorPool(device, pool, None)
     v.vkDestroyPipeline(device, pipeline, None)
@@ -70,7 +82,7 @@ def execute(shader, chunks, out_bytes, params):
         v.vkFreeMemory(device, m, None)
     v.vkDestroyDevice(device, None)
     v.vkDestroyInstance(instance, None)
-    return np.frombuffer(result, dtype=np.float32), name
+    return np.frombuffer(result, dtype=np.float32), details
 
 
 def reference(codes, bits, K, N):
@@ -113,6 +125,6 @@ def main():
             wanted=x.astype(np.float64)@(expected*np.repeat(scales.astype(np.float32),16)).astype(np.float64).T
             np.testing.assert_allclose(actual.reshape(batch,N),wanted,rtol=3e-5,atol=2e-4)
             results.append({'bits':bits,'pattern':pattern,'max_abs_error':float(np.max(np.abs(actual.reshape(batch,N)-wanted)))})
-    print(json.dumps({'device':name,'cases':results,'passed':True,'scope':'isolated decode and unrotated product only'},indent=2))
+    print(json.dumps({'environment':name,'cases':results,'passed':True,'scope':'isolated decode and unrotated product only'},indent=2))
 
 if __name__=='__main__': main()

@@ -1,5 +1,15 @@
 {
-  "device": "llvmpipe (LLVM 15.0.7, 256 bits)",
+  "environment": {
+    "device_name": "llvmpipe (LLVM 15.0.7, 256 bits)",
+    "vendor_id": 65541,
+    "device_id": 0,
+    "driver_version_raw": 1,
+    "vulkan_api_version_raw": 4206847,
+    "os": "Linux-6.1.189+-x86_64-with-glibc2.35",
+    "python": "3.10.12",
+    "device_filter": "llvmpipe",
+    "icd_override": "/usr/share/vulkan/icd.d/lvp_icd.x86_64.json"
+  },
   "cases": [
     {
       "bits": 1,
