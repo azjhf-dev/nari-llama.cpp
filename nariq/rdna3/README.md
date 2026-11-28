@@ -3,6 +3,39 @@
 Status on 2026-11-24: **not yet a usable AMD model runtime**.
 Branch: `rdna3-vulkan`, based on Nari commit `8e0e016e0cd13f153380bde2bec01add08eae85e`.
 
+
+## Toolchain (2026-11-28)
+
+The ggml-vulkan backend of this fork builds on a stock Ubuntu 22.04 userland
+with a local LunarG Vulkan SDK (no root):
+
+    bash nariq/rdna3/setup-toolchain.sh
+
+Verified on 2026-11-28 with SDK 1.4.363.1 (glslc v2026.4): configure detects
+Vulkan + all shader extensions (coopmat/coopmat2, integer dot product,
+bfloat16, e2m1/e4m3), all shaders compile, and `libggml-vulkan.so` links.
+
+Low-RAM hosts (<4GB): gcc OOMs on the generated `mul_mm.comp.cpp` (~79MB of
+SPIR-V arrays) at any -O. Run `python3 nariq/rdna3/lowmem-build.py` (splits
+oversized generated TUs and partial-links them), then re-run the cmake build.
+The committed build config uses -O1; tune flags on the real 7900 XTX box.
+
+Backend smoke test (no model needed):
+
+    gcc -O1 -o /tmp/vk_smoke nariq/rdna3/tests/vk_smoke.c \
+        -I ggml/include -L build-vk/bin -lggml-vulkan -lggml-base \
+        -Wl,-rpath,$PWD/build-vk/bin
+    /tmp/vk_smoke    # prints device + capabilities, ends with VK_SMOKE_OK
+
+Verified on lavapipe 2026-11-28 (needs GGML_VK_VISIBLE_DEVICES=0 there;
+ggml skips CPU-type devices by default). On the 7900 XTX host run it without
+that override; it should report gfx1103-class capabilities (fp16, warp 32/64,
+coopmat if driver exposes it).
+
+Software-Vulkan status unchanged: the 44 isolated cases in
+`nariq/rdna3/tests/` still prove shader math only, not RDNA3 compatibility or
+speed. ggml integration, model evaluation and AMD hardware runs remain open.
+
 ## Backend decision
 
 Vulkan first, in a dedicated Nari fork rather than Avalon. This preserves the
